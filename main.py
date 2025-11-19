@@ -30,7 +30,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # --- 2. መደበኛ መልዕክቶችን የሚቆጣጠር ተግባር ---
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def post_init(application: ApplicationBuilder) -> None:
+    """Sets up the Webhook URL when the application starts."""
+    url = os.environ.get("RENDER_EXTERNAL_URL")
+    if url:
+        await application.bot.set_webhook(url=url)
     """ከተጠቃሚው የመጣውን መልዕክት ተቀብሎ አድሚኑ በቅርቡ ምላሽ እንደሚሰጥ ይናገራል።"""
     
     text_received = update.message.text
@@ -51,7 +55,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- 3. የቦቱን ማሄጃ ዋና ተግባር ---
 
 def main_run():
-    """ቦቱን ለማስኬድ ዋናውን Application ይፈጥራል።"""
+    """Initializes and runs the bot in Webhook mode for Render."""
     
     if not BOT_TOKEN:
         logger.error("BOT_TOKEN is not set. Check your Render Environment Variables.")
