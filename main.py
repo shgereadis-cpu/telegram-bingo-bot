@@ -1,9 +1,10 @@
 import logging
+import os # 👈 የደህንነትን ለማረጋገጥ አስፈላጊ!
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 
-# 🔐 የቦትህን ቶከን እዚህ አስገባ
-BOT_TOKEN = "8579925909:AAH43SvslBC-cPM47DqVodYa4hI5daP2nmk" 
+# 🔐 BOT_TOKENን ከ Render Environment Variables ላይ ያነባል
+BOT_TOKEN = os.environ.get("BOT_TOKEN") 
 
 # ሎግግንግ ማዘጋጀት
 logging.basicConfig(
@@ -17,7 +18,6 @@ logger = logging.getLogger(__name__)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """/start ኮማንድ ሲመጣ የእንኳን ደህና መጣችሁ መልዕክት ይልካል።"""
     
-    # የተጠቃሚውን ስም ለመውሰድ መሞከር
     user_name = update.effective_user.first_name if update.effective_user else "ውድ ተጠቃሚ"
     
     welcome_message = (
@@ -37,7 +37,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     user_name = update.effective_user.first_name if update.effective_user else "Unknown"
     
-    # መልዕክቱን ወደ ኮንሶል ወይም ሌላ ቦታ መመዝገብ (አድሚኑ እንዲያይ)
     logger.info(f"New Message from {user_name} ({chat_id}): {text_received}")
     
     # ለተጠቃሚው የሚመለሰው ምላሽ
@@ -54,6 +53,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main_run():
     """ቦቱን ለማስኬድ ዋናውን Application ይፈጥራል።"""
     
+    if not BOT_TOKEN:
+        logger.error("BOT_TOKEN is not set. Check your Render Environment Variables.")
+        return
+        
     application = ApplicationBuilder().token(BOT_TOKEN).build()
 
     # Handlers መጨመር
